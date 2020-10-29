@@ -30,10 +30,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			_, err = fmt.Fprintln(w, "Unable to connect to storage")
-			if err != nil {
-				log.Print("Error")
-			}
+			log.Print("Unable to connect to storage")
 			if i == 2 {
 				_, err = fmt.Fprintln(w, "Sorry our service is currently unavailable")
 				if err != nil {
@@ -41,7 +38,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 				}
 				return
 			}
-			time.Sleep(5 * time.Second)
+			time.Sleep(1 * time.Second)
 			continue
 		}
 
