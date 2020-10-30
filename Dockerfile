@@ -1,6 +1,6 @@
 FROM golang:1.14-alpine AS build
-RUN apk update && apk upgrade && \
-    apk add --no-cache git
+RUN apk update && apk upgrade && apk add --no-cache git && apk add curl
+
 WORKDIR /tmp/app
 COPY go.mod .
 COPY go.sum .
@@ -11,6 +11,7 @@ RUN GOOS=linux go build -o ./out/api .
 #########################################################
 
 FROM alpine:latest
+RUN apk update && apk upgrade && apk add --no-cache git && apk add curl
 RUN apk add ca-certificates
 COPY --from=build /tmp/app/out/api /app/api
 WORKDIR "/app"

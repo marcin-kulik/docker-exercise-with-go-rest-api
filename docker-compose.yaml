@@ -1,18 +1,30 @@
 version: "3.8"
+
 services:
-  rest-api:
-    build: .
-    #    depends_on:
-    #      storage:
-    #        condition: service_healthy
-    ports:
-      - "5000:5000"
+
   storage:
-    image: marcinkulik/storage-for-numbers:v1
+    image: marcinkulik/storage-for-numbers:v2
     ports:
       - "5010:5010"
-#    healthcheck:
-#          test: "${DOCKER_HEALTHCHECK_TEST:-curl localhost:5010/alive}"
-#          timeout: 45s
-#          interval: 10s
-#          retries: 10
+    healthcheck:
+      test: curl --fail -s http://localhost:5010/alive || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  rest-api:
+    build: .
+    restart: on-failure
+    ports:
+      - "5000:5000"
+    depends_on:
+      - storage
+    links:
+      - storage
+    healthcheck:
+      test: curl --fail -s http://localhost:5000/alive || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+

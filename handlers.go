@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"io/ioutil"
 	"log"
@@ -14,6 +13,8 @@ import (
 func home(w http.ResponseWriter, r *http.Request) {
 	log.Println("Enter: home")
 	defer log.Println("Exit: home")
+
+	w.Header().Set("Content-Type", "application/json")
 
 	message := Message{
 		Number: uuid.New().String(),
@@ -32,9 +33,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Print("Unable to connect to storage")
 			if i == 2 {
-				_, err = fmt.Fprintln(w, "Sorry our service is currently unavailable")
+				w.WriteHeader(http.StatusInternalServerError)
+				err := json.NewEncoder(w).Encode("Sorry our service is currently unavailable")
 				if err != nil {
-					log.Print("Error")
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
 				}
 				return
 			}
@@ -50,15 +53,22 @@ func home(w http.ResponseWriter, r *http.Request) {
 		log.Print("Response Body:", string(body))
 		i = 3
 	}
-	_, err = fmt.Fprintln(w, "Welcome, your unique visitor number is", message.Number)
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode("Welcome, your unique visitor number is: " + message.Number)
 	if err != nil {
-		log.Print("Error")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	return
 }
 
 func alive(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprintln(w, "Service is alive")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode("Service is alive")
 	if err != nil {
-		log.Print("Error")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	return
 }
