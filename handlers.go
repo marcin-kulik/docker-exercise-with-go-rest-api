@@ -23,7 +23,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := 0; i < 3; i++ {
-		req, err := http.NewRequest("POST", "http://localhost:5010/store", bytes.NewBuffer(messageJson))
+		req, err := http.NewRequest("POST", "http://storage:5010/store", bytes.NewBuffer(messageJson))
 		if err != nil {
 			log.Fatalln(err)
 		}
